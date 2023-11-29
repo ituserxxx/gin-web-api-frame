@@ -1,0 +1,26 @@
+before_script:
+  - echo $CI_JOB_NAME
+  - echo $CI_PROJECT_DIR
+  - echo $CI_UPDATE_SERVICE
+  - echo $CI_COMMIT_REF_NAME
+  # More Predefined variables (Environment variables) see https://docs.gitlab.com/ce/ci/variables/README.html
+
+stages:
+  - deploy
+
+deploy:go-run:
+  stage: deploy
+  retry:
+    max: 2
+  timeout: 2 minutes
+  only:
+    - master
+  script:
+    - go build -o garden_api main.go
+    - chmod +x garden_api
+    - cp .env /root/garden/
+    - mv garden_api /root/garden/
+    - supervisorctl restart garden-api
+  tags:
+    - bash
+    - w214
